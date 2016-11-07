@@ -9,6 +9,7 @@ from DistanceMetric import cosine_similarity, sentence_to_vector
 from fuzzywuzzy import fuzz
 from DataAnalysisTool import DataAnalysisTool
 
+
 input_dataset = '/Users/aosingh/AuthorDisambiguation/Dataset'
 
 split_institute = lambda institute:institute.split(',')
@@ -25,6 +26,7 @@ features = ['INSTIT_SCORE',
         'COAUTHOR_SCORE',
         'MATCH']
 
+#Possible variations in author names.
 ALBERITNI_LASTNAME = ['ALBERTINI', 'ALBERTIN', 'ALBERTINDF']
 ALBERTINI_FIRSTNAME = ['DAVID', 'DF', 'DAVID F', 'D F', 'D']
 
@@ -48,6 +50,9 @@ TRISHCMAN_FIRSTNAME = ['TM', '']
 fileLastName = {}
 fileFirstName = {}
 
+#Declare a dictionary to map each (author specific)csv file corresponding to the possible firstnames and lastnames.
+#These dictionaries will be used when we call the generate() method to generate the training data.
+
 fileLastName['Albertini_David.csv'] = ALBERITNI_LASTNAME
 fileLastName['Arnold_John.csv'] = ARNOLD_LASTNAME
 fileLastName['Boyer_Barbara.csv'] = BOYER_LASTNAME
@@ -64,8 +69,57 @@ fileFirstName['Trischmann_Thomas.csv'] = TRISHCMAN_FIRSTNAME
 
 
 class TrainingDataGenerator:
+    """
+    This module is responsible for generating Training records.
+    By training records, we mean the following 2 things.
+
+    1. Records in the form of : AUTHOR_INSTANCE_1, AUTHOR_INSTANCE_2, MATCH(0,1)
+        To be precise, following are the column names:
+
+        [FIRST_NAME1, FIRST_NAME2, LAST_NAME1, LAST_NAME2,
+        EMAILADDRESS1, EMAILADDRESS2, INSTITUTE1, INSTITUTE2,
+        AUTHOR_KW1, AUTHOR_KW2, COAUTHORS1, COAUTHORS2, MATCH]
+
+        We call the corresponding CSV as train.csv
+
+
+    2. Scores in between the 2 AUTHOR INSTANCES.
+        Each column is a score in between 0 and 1. We will train our classifiers on these records.
+        They have the following features:
+
+        ['INSTIT_SCORE','BOTH_NAME_SCORE','FNAME_SCORE',
+        'FNAME_PARTIAL_SCORE','LNAME_SCORE','LNAME_PARTIAL_SCORE',
+        'EMAIL_ADDR_SCORE','AUTH_KW_SCORE','COAUTHOR_SCORE','MATCH']
+
+        This CSV is called scores.csv
+
+        Please read https://diging.atlassian.net/wiki/display/DILS/Training+the+classifier for more details
+
+    """
 
     def __init__(self, papers_df, random=True):
+        """
+        We need the papers(pandas dataframe), to iterate on and generate the scores.
+        An example shown below, will make the usage of this class clear.
+
+        ``Example``
+
+        >>> fileName = '/Users/aosingh/AuthorDisambiguation/Dataset/Albertini_David.csv'
+        >>> analyzer = DataAnalysisTool(fileName) # Please check the class DataAnalysisTool for more details
+        >>> ALBERTINI_FIRSTNAME = ['DAVID', 'DF', 'DAVID F', 'D F', 'D']
+        >>> ALBERITNI_LASTNAME = ['ALBERTINI', 'ALBERTIN', 'ALBERTINDF']
+        >>> papers = analyzer.getPapersForAuthor(ALBERITNI_LASTNAME, ALBERTINI_FIRSTNAME)
+        >>> training_data_generator = TrainingDataGenerator(papers, random=False)
+        >>> training_data_generator.generate_records() # generate train.csv.
+        >>> training_data_generator.calculate_scores() # Generate scores.csv
+
+        :param papers_df: Papers DataFrame
+        :param random: If random then 'MATCH' = 0, else 'MATCH' = 1
+        :return:
+
+        *TODO* - rename attribute 'random' to 'match'
+
+        """
         self.papers_df = papers_df
         self.random = random
         self.training_df = None
@@ -73,11 +127,37 @@ class TrainingDataGenerator:
 
     @staticmethod
     def set_feature_value(paper_sample, training_record, attribute_name, column_name):
+        """
+
+        ``Example`` The following example explains the usage.
+        >>> TrainingDataGenerator.set_feature_value(row, d, 'FIRST_NAME1', 'FIRSTNAME')
+            This means, do the following
+        >>> d['FIRST_NAME1'] = row['FIRSTNAME']
+
+        :param paper_sample:
+        :param training_record:
+        :param attribute_name:
+        :param column_name:
+        :return: training_record after setting the feature value.
+        """
         training_record[attribute_name] = paper_sample[column_name]
         return training_record
 
     @staticmethod
     def get_score_for_coauthors(training_record):
+        """
+        Given a training_record, calculate the overlap score in between Co-authors
+        The overlap score is calculated in between the fields COAUTHORS1, COAUTHORS2
+
+                >>>intersection = COAUTHORS1 & COAUTHORS2
+                >>>union = COAUTHORS1 | COAUTHORS2
+                >>>score = len(intersection)/len(union)
+
+        Please read :https://diging.atlassian.net/wiki/display/DILS/Co-authors+for+disambiguation for more details
+
+        :param training_record:
+        :return: A score between 0 and 1
+        """
         coauthor1 = training_record['COAUTHORS1']
         coauthor2 = training_record['COAUTHORS2']
         if coauthor1 is None or coauthor1 == "[]":
@@ -95,6 +175,19 @@ class TrainingDataGenerator:
 
     @staticmethod
     def get_score_for_author_keywords(training_record):
+        """
+        Given a training_record, calculate the overlap score in between Author Keywords
+        The overlap score is calculated in between the fields AUTHOR_KW1, AUTHOR_KW2
+
+                >>>intersection = AUTHOR_KW1 & AUTHOR_KW2
+                >>>union = AUTHOR_KW1 | AUTHOR_KW2
+                >>>score = len(intersection)/len(union)
+
+        Please read : https://diging.atlassian.net/wiki/display/DILS/Author+keywords+for+dismbiguation for more details
+
+        :param training_record:
+        :return: A score between 0 and 1
+        """
         author_kw1 = training_record['AUTHOR_KW1']
         author_kw2 = training_record['AUTHOR_KW2']
         if author_kw1 is None or author_kw1 == "[]":
@@ -112,6 +205,15 @@ class TrainingDataGenerator:
 
     @staticmethod
     def get_score_for_email_address(training_record):
+        """
+        Return 1 if both the email-addresses match else return 0.
+
+        Please read : https://diging.atlassian.net/wiki/pages/viewpage.action?pageId=46432257 for more details
+
+        :param training_record:
+        :return: A score of either 0 or 1
+        """
+
         email1 = training_record['EMAILADDRESS1']
         email2 = training_record['EMAILADDRESS2']
         if email1 is None or email1 == "[]":
@@ -257,10 +359,7 @@ def generate():
         scoresDF.to_csv('/Users/aosingh/AuthorDisambiguation/Training_data/scores.csv', columns=features, index=False)
 
 
-
-
-
-
+generate()
 
 
 
