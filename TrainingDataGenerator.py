@@ -338,7 +338,7 @@ class TrainingDataGenerator:
 
         >>> features = ['INSTIT_SCORE','BOTH_NAME_SCORE','FNAME_SCORE','FNAME_PARTIAL_SCORE','LNAME_SCORE',
         >>> 'LNAME_PARTIAL_SCORE','EMAIL_ADDR_SCORE','AUTH_KW_SCORE','COAUTHOR_SCORE','MATCH']
-        
+
         :return:
         """
         self.training_df['INSTIT_SCORE'] = self.training_df.apply(lambda row: TrainingDataGenerator.compare_institute_names(row), axis=1)
