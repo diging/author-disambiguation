@@ -30,17 +30,17 @@ git clone https://github.com/diging/author-disambiguation.git
 ### Files 
 
 * `PaperParser.py`
-This module uses [Tethne](http://pythonhosted.org/tethne/) to parse WOS tagged-file data and writes the output to a CSV file. 
+This class uses [Tethne](http://pythonhosted.org/tethne/) to parse WOS tagged-file data and writes the output to a CSV file. 
 Then we can use the class `DataAnalysisTool.py` on the output csv to perform data analysis
 
     * There are 2 possible use-cases
-        ``Example 1 : Parse a single WOS text file``
+        
         ```python
                    parser = PaperParser('/Users/aosingh/TethneDataAnalysis/MBL History Data/1971/Albertini_David.txt',
                                        '/Users/aosingh/AuthorDisambiguation/Dataset',)
                    parser.parseFile()
         ```
-        ``Example 2 : Parse a directory of WOS text files``
+        
         ```python
                    parser = PaperParser('/Users/aosingh/TethneDataAnalysis/MBL History Data/',
                                '/Users/aosingh/AuthorDisambiguation/Dataset', output_filename='records.csv')
@@ -48,7 +48,7 @@ Then we can use the class `DataAnalysisTool.py` on the output csv to perform dat
         ```
 
 * `DistanceMetric.py`
-We can define various similarity metrics in this module. 
+We can define various similarity metrics in this class. 
 
     * As of now, I have defined a method to calculate cosine similarity. Below is an example of the method to calculate cosine similarity.
     
@@ -61,7 +61,7 @@ We can define various similarity metrics in this module.
         ```
 
 * `TrainingDataGenerator.py`
-This module is responsible for generating Training records. By training records, we mean the following 2 things.
+This class is responsible for generating Training records. By training records, we mean the following 2 things.
 
     * Generate records in the form of : AUTHOR_INSTANCE_1, AUTHOR_INSTANCE_2, MATCH(0,1). The corresponding output file is called `train.csv`
     
@@ -101,7 +101,7 @@ This module is responsible for generating Training records. By training records,
     * Example of usage of this class
         
         ```python
-                fileName = '/Users/aosingh/AuthorDisambiguation/Dataset/Albertini_David.csv' #this CSV is generated using the class PaperParserpy
+                fileName = '/Users/aosingh/AuthorDisambiguation/Dataset/Albertini_David.csv' #this CSV is generated using the class PaperParser.py
                 analyzer = DataAnalysisTool(fileName) # Please check the class DataAnalysisTool.py for more details
                 ALBERTINI_FIRSTNAME = ['DAVID', 'DF', 'DAVID F', 'D F', 'D']
                 ALBERITNI_LASTNAME = ['ALBERTINI', 'ALBERTIN', 'ALBERTINDF']
