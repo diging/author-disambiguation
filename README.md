@@ -27,6 +27,27 @@ git clone https://github.com/diging/author-disambiguation.git
 *   [scikit-learn](http://scikit-learn.org/stable/)
     *   `pip install -U scikit-learn`
 
+### Files 
+* `TrainingDataGenerator.py`
+   *    This module is responsible for generating Training records.By training records, we mean the following 2 things.
+    1  Records in the form of : AUTHOR_INSTANCE_1, AUTHOR_INSTANCE_2, MATCH(0,1)
+        To be precise, following are the column names
 
+        [FIRST_NAME1, FIRST_NAME2, LAST_NAME1, LAST_NAME2,
+        EMAILADDRESS1, EMAILADDRESS2, INSTITUTE1, INSTITUTE2,
+        AUTHOR_KW1, AUTHOR_KW2, COAUTHORS1, COAUTHORS2, MATCH]
+
+        We call the corresponding CSV as train.csv
+
+    2  Scores in between the 2 AUTHOR INSTANCES.
+        Each column is a score in between 0 and 1. We will train our classifiers on these records. They have the following features
+        
+        ['INSTIT_SCORE','BOTH_NAME_SCORE','FNAME_SCORE',
+        'FNAME_PARTIAL_SCORE','LNAME_SCORE','LNAME_PARTIAL_SCORE',
+        'EMAIL_ADDR_SCORE','AUTH_KW_SCORE','COAUTHOR_SCORE','MATCH']
+
+        This CSV is called scores.csv
+
+        Please read https://diging.atlassian.net/wiki/display/DILS/Training+the+classifier for more details
 
 
