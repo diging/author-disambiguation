@@ -53,6 +53,7 @@ This class has methods and tools to analyse a bunch of (World of Science)WOS pap
 A CSV file of expected format can be easily created using the class `PaperParser.py` as explained above.
 
     * An example usage of this analysis tool can be to get all papers based on different variations of the first names and last names.
+    
         ```python
                         fileName = '/Users/aosingh/AuthorDisambiguation/Dataset/Albertini_David.csv' #this CSV is generated using the class PaperParser.py
                         analyzer = DataAnalysisTool(fileName) # Please check the class DataAnalysisTool.py for more details
