@@ -28,6 +28,38 @@ git clone https://github.com/diging/author-disambiguation.git
     *   `pip install -U scikit-learn`
 
 ### Files 
+
+* `PaperParser.py`
+This module uses [Tethne](http://pythonhosted.org/tethne/) to parse WOS tagged-file data and writes the output to a CSV file. 
+Then we can use the class `DataAnalysisTool.py` on the output csv to perform data analysis
+
+    * There are 2 possible use-cases
+        ``Example 1 : Parse a single WOS text file``
+        ```python
+                   parser = PaperParser('/Users/aosingh/TethneDataAnalysis/MBL History Data/1971/Albertini_David.txt',
+                                       '/Users/aosingh/AuthorDisambiguation/Dataset',)
+                   parser.parseFile()
+        ```
+        ``Example 2 : Parse a directory of WOS text files``
+        ```python
+                   parser = PaperParser('/Users/aosingh/TethneDataAnalysis/MBL History Data/',
+                               '/Users/aosingh/AuthorDisambiguation/Dataset', output_filename='records.csv')
+                   parser.parseDirectory()
+        ```
+
+* `DistanceMetric.py`
+We can define various similarity metrics in this module. 
+
+    * As of now, I have defined a method to calculate cosine similarity. Below is an example of the method to calculate cosine similarity.
+    
+        ```python
+        input1 = "CARNEGIE INST WASHINGTON,DEPT EMBRYOL"
+        input2 = "CARNEGIE INST WASHINGTON,DEPT"
+        vector1 = sentence_to_vector(input1) #Counter({'EMBRYOL': 1, 'WASHINGTON': 1, 'INST': 1, 'CARNEGIE': 1, 'DEPT': 1})
+        vector2 = sentence_to_vector(input2) #Counter({'WASHINGTON': 1, 'INST': 1, 'CARNEGIE': 1, 'DEPT': 1})
+        cosine_similarity(vector1, vector2)  #0.894427191
+        ```
+
 * `TrainingDataGenerator.py`
 This module is responsible for generating Training records. By training records, we mean the following 2 things.
 
@@ -66,14 +98,22 @@ This module is responsible for generating Training records. By training records,
                     'COAUTHOR_SCORE',
                     'MATCH']
         ```
-
-* `DistanceMetric.py`
-    * We can define various similarity metrics in this module. As of now, I have defined the method to calculate cosine similarity
-    
+    * Example of usage of this class
+        
         ```python
-        input1 = "CARNEGIE INST WASHINGTON,DEPT EMBRYOL"
-        input2 = "CARNEGIE INST WASHINGTON,DEPT"
-        vector1 = sentence_to_vector(input1) #Counter({'EMBRYOL': 1, 'WASHINGTON': 1, 'INST': 1, 'CARNEGIE': 1, 'DEPT': 1})
-        vector2 = sentence_to_vector(input2) #Counter({'WASHINGTON': 1, 'INST': 1, 'CARNEGIE': 1, 'DEPT': 1})
-        cosine_similarity(vector1, vector2)  #0.894427191
+                fileName = '/Users/aosingh/AuthorDisambiguation/Dataset/Albertini_David.csv' #this CSV is generated using the class PaperParserpy
+                analyzer = DataAnalysisTool(fileName) # Please check the class DataAnalysisTool.py for more details
+                ALBERTINI_FIRSTNAME = ['DAVID', 'DF', 'DAVID F', 'D F', 'D']
+                ALBERITNI_LASTNAME = ['ALBERTINI', 'ALBERTIN', 'ALBERTINDF']
+                papers = analyzer.getPapersForAuthor(ALBERITNI_LASTNAME, ALBERTINI_FIRSTNAME)
+                training_data_generator = TrainingDataGenerator(papers, random=False)
+                training_data_generator.generate_records() # generate train.csv.
+                training_data_generator.calculate_scores() # Generate scores.csv
         ```
+    
+
+
+
+
+
+    
