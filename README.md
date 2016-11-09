@@ -81,9 +81,7 @@ This class is responsible for generating Training records. By training records, 
                    'COAUTHORS2', 
                    'MATCH']
         ```
-    * Scores in between the 2 AUTHOR INSTANCES.Each column is a score in between 0 and 1. 
-        
-        We will train our classifiers on these records. The corresponding output file is called `scores.csv`
+    * Scores in between the 2 AUTHOR INSTANCES. Each column is a score in between 0 and 1. We will train our classifiers on these records. The corresponding output file is called `scores.csv`
     
         To be precise, following are the column names in the file `scores.csv`
         ```python 
