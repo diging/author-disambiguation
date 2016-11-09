@@ -29,11 +29,41 @@ git clone https://github.com/diging/author-disambiguation.git
 
 ### Files 
 * `TrainingDataGenerator.py`
-   *    This module is responsible for generating Training records.By training records, we mean the following 2 things.
-        *  Records in the form of : AUTHOR_INSTANCE_1, AUTHOR_INSTANCE_2, MATCH(0,1).
-           To be precise, following are the column names
-           ```python 
-            ['FIRST_NAME1', 'FIRST_NAME2', 'LAST_NAME1', 'LAST_NAME2',
-            'EMAILADDRESS1', 'EMAILADDRESS2', 'INSTITUTE1', 'INSTITUTE2',
-            'AUTHOR_KW1', 'AUTHOR_KW2', 'COAUTHORS1', 'COAUTHORS2', 'MATCH']```
+This module is responsible for generating Training records. By training records, we mean the following 2 things.
+
+    * Generate records in the form of : AUTHOR_INSTANCE_1, AUTHOR_INSTANCE_2, MATCH(0,1). The corresponding output file is called `train.csv`
+    
+        To be precise, following are the column names in the file `train.csv`
+        ```python 
+                   ['FIRST_NAME1', 
+                   'FIRST_NAME2', 
+                   'LAST_NAME1', 
+                   'LAST_NAME2',
+                   'EMAILADDRESS1', 
+                   'EMAILADDRESS2', 
+                   'INSTITUTE1', 
+                   'INSTITUTE2',
+                   'AUTHOR_KW1', 
+                   'AUTHOR_KW2', 
+                   'COAUTHORS1', 
+                   'COAUTHORS2', 
+                   'MATCH']
+        ```
+    * Scores in between the 2 AUTHOR INSTANCES.Each column is a score in between 0 and 1. 
+        
+        We will train our classifiers on these records. The corresponding output file is called `scores.csv`
+    
+        To be precise, following are the column names in the file `scores.csv`
+        ```python 
+                    ['INSTIT_SCORE',
+                    'BOTH_NAME_SCORE',
+                    'FNAME_SCORE',
+                    'FNAME_PARTIAL_SCORE',
+                    'LNAME_SCORE',
+                    'LNAME_PARTIAL_SCORE',
+                    'EMAIL_ADDR_SCORE',
+                    'AUTH_KW_SCORE',
+                    'COAUTHOR_SCORE',
+                    'MATCH']
+        ```
 
