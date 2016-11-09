@@ -71,6 +71,7 @@ class PaperParser:
                 if '.txt' in file:
                     fullPath = os.path.join(root, file)
                     papers = wos.read(fullPath)
+                    print "file Name", file
                     print "total length of papers",len(papers)
                     with open(self.csv, 'a') as csvfile:
                         paperWriter = csv.writer(csvfile, delimiter=",")
@@ -141,5 +142,5 @@ class PaperParser:
                     paperWriter.writerow(row)
 
 
-parser = PaperParser('/Users/aosingh/TethneDataAnalysis/MBL History Data/1971/Albertini_David.txt', '/Users/aosingh/AuthorDisambiguation/Dataset',)
-parser.parseFile()
+parser = PaperParser('/Users/aosingh/AuthorDisambiguation/RandomDataSet', '/Users/aosingh/AuthorDisambiguation/Dataset', 'random.csv')
+parser.parseDirectory()

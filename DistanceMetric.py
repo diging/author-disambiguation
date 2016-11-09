@@ -47,7 +47,7 @@ def sentence_to_vector(sentence):
     """
     tokens = WORD.findall(sentence)
     return Counter(tokens)
-
+"""
 input1 = "CARNEGIE INST WASHINGTON,DEPT EMBRYOL"
 input2 = "CARNEGIE INST WASHINGTON,DEPT"
 vector1 = sentence_to_vector(input1)
@@ -55,4 +55,5 @@ vector2 = sentence_to_vector(input2)
 print vector1
 print vector2
 print cosine_similarity(vector1, vector2)
+"""
 

@@ -18,7 +18,7 @@ class DataAnalysisTool:
     """
     This class has methods and tools to analyse a bunch of (World of Science)WOS papers objects.
 
-    The paper details are read from a CSV. CSV file headers are shown below.
+    The paper details are read from a CSV. `CSV file headers are shown below.
 
     WOSID,DATE,TITLE,LASTNAME,FIRSTNAME,JOURNAL,EMAILADDRESS,PUBLISHER,SUBJECT,WC,AUTHOR_KEYWORDS.
 
@@ -126,7 +126,7 @@ class DataAnalysisTool:
 
         list_upper_triangular = score_matrix[np.triu_indices(len(papers_dataframe),1)]
         list_upper_triangular = list_upper_triangular[np.nonzero(list_upper_triangular)]
-        return list_upper_triangular
+        #return list_upper_triangular
         pd.Series(list_upper_triangular).plot(kind='hist')
         plt.show(block=True)
 
@@ -157,8 +157,8 @@ class DataAnalysisTool:
         print score_matrix
         list_upper_triangular = score_matrix[np.triu_indices(len(listOfFeatures),1)]
         list_upper_triangular = list_upper_triangular[np.nonzero(list_upper_triangular)]
-        return list_upper_triangular
-        pd.Series(list_upper_triangular).plot(kind='hist')
+        #return list_upper_triangular
+        #pd.Series(list_upper_triangular).plot(kind='hist')
         sns.distplot(pd.Series(list_upper_triangular))
         plt.show(block=True)
 

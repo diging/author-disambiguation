@@ -47,6 +47,15 @@ DAWID_FIRSTNAME = ['IGOR B', 'IB', 'I B', '']
 TRISHCMAN_LASTNAME = ['TRISCHMANN']
 TRISHCMAN_FIRSTNAME = ['TM', '']
 
+CALVET_LASTNAME = ['CALVET']
+CALVET_FIRSTNAME = ['JP', 'JAMES P', 'J', 'J P']
+
+HONJO_LASTNAME = ['HONJO']
+HONJO_FIRSTNAME = ['T', 'TASUKU', 'TSUNEO']
+
+FRANKEL_LASTNAME = ['FRANKEL']
+FRANKEL_FIRSTNAME = ['FR', 'FRED R']
+
 fileLastName = {}
 fileFirstName = {}
 
@@ -59,6 +68,10 @@ fileLastName['Boyer_Barbara.csv'] = BOYER_LASTNAME
 fileLastName['Brigitte_Brandiff.csv'] = BRANDIFF_LASTNAME
 fileLastName['Dawid_Igor.csv'] = DAWID_LASTNAME
 fileLastName['Trischmann_Thomas.csv'] = TRISHCMAN_LASTNAME
+fileLastName['Calvet_James.csv'] = CALVET_LASTNAME
+fileLastName['Honjo_Tasuka_part1.csv'] = HONJO_LASTNAME
+fileLastName['Honjo_Tasuka_part2.csv'] = HONJO_LASTNAME
+fileLastName['Frankel_Fred.csv'] = FRANKEL_LASTNAME
 
 fileFirstName['Albertini_David.csv'] = ALBERTINI_FIRSTNAME
 fileFirstName['Arnold_John.csv'] = ARNOLD_FIRSTNAME
@@ -66,6 +79,10 @@ fileFirstName['Boyer_Barbara.csv'] = BOYER_FIRSTNAME
 fileFirstName['Brigitte_Brandiff.csv'] = BRANDIFF_FIRSTNAME
 fileFirstName['Dawid_Igor.csv'] = DAWID_FIRSTNAME
 fileFirstName['Trischmann_Thomas.csv'] = TRISHCMAN_FIRSTNAME
+fileFirstName['Calvet_James.csv'] = CALVET_FIRSTNAME
+fileFirstName['Honjo_Tasuka_part1.csv'] = HONJO_FIRSTNAME
+fileFirstName['Honjo_Tasuka_part2.csv'] = HONJO_FIRSTNAME
+fileFirstName['Frankel_Fred.csv'] = FRANKEL_FIRSTNAME
 
 
 class TrainingDataGenerator:
@@ -247,12 +264,35 @@ class TrainingDataGenerator:
 
     @staticmethod
     def get_institute_name(institutions, author):
-        '''
+        """
+        This method finds the institute name to which the author belongs.
+
+        If we look at a training record and specifically the 'INSTITUTE' field, We have 3 different cases here
+        CASE 1. Institute name is a String, For example :
+                        "Univ Kansas, Med Ctr, Kansas City, KS 66160 USA."
+
+        CASE 2. Institute name is a List, For example:
+                        [u'MARINE BIOL LAB,WOODS HOLE,MA.', u'UNIV MASSACHUSETTS,AMHERST,MA.',
+                        u'REED COLL,PORTLAND,OR.', u'UNIV CONNECTICUT,BIOL SCI GRP,STORRS,CT 06268.']
+
+        CASE 3. Institutions name is a map, where each author is mapped to his/her institute. For example:
+                        [u'[Telfer, Evelyn E.] Univ Edinburgh, Inst Cell Biol, Edinburgh, Midlothian, Scotland.',
+                        u'[Telfer, Evelyn E.] Univ Edinburgh, Ctr Integrat Physiol, Edinburgh, Midlothian, Scotland.',
+                        u'[Albertini, David F.] Univ Kansas, Med Ctr, Inst Reprod Hlth & Regenerat Med, Ctr Reprod Sci,
+                                                                                            Kansas City, KS 66103 USA.']
+
+        We deal with the above scenarios in the following way.
+
+        For CASE 1 : Return the institute name as-is.
+
+        For CASE 2 : No way to link author to its institute. So return ``None``
+
+        For CASE 3 : We try to find the correct mapping. If there is match, we return the found institute name
 
         :param institutions:
         :param author:
         :return:
-        '''
+        """
         WORD = re.compile(r'\w+')
         if type(institutions) is str:
             if institutions.startswith('[') and institutions.endswith(']'):
@@ -273,6 +313,17 @@ class TrainingDataGenerator:
 
     @staticmethod
     def compare_institute_names(training_record):
+        '''
+        For the training record, passed in input.
+        1. GET INSTITUTE 1 using the method get_institute_name()
+        2. GET INSTITUTE 2
+        3. Return a cosine similarity score in between the 2 institute names.
+
+        Please read https://diging.atlassian.net/wiki/pages/viewpage.action?pageId=46432257 for more details.
+
+        :param training_record:
+        :return: A score between 0 and 1.
+        '''
         institute1 = TrainingDataGenerator.get_institute_name(training_record['INSTITUTE1'], training_record['LAST_NAME1'])
         institute2 = TrainingDataGenerator.get_institute_name(training_record['INSTITUTE2'], training_record['LAST_NAME2'])
         if institute1 is not None and institute2 is not None:
@@ -282,6 +333,14 @@ class TrainingDataGenerator:
         return 0
 
     def calculate_scores(self):
+        """
+        Calculate the scores for each feature defined below.
+
+        >>> features = ['INSTIT_SCORE','BOTH_NAME_SCORE','FNAME_SCORE','FNAME_PARTIAL_SCORE','LNAME_SCORE',
+        >>> 'LNAME_PARTIAL_SCORE','EMAIL_ADDR_SCORE','AUTH_KW_SCORE','COAUTHOR_SCORE','MATCH']
+        
+        :return:
+        """
         self.training_df['INSTIT_SCORE'] = self.training_df.apply(lambda row: TrainingDataGenerator.compare_institute_names(row), axis=1)
         self.training_df['BOTH_NAME_SCORE'] = self.training_df.apply(lambda row: TrainingDataGenerator.get_score_for_name(row), axis=1)
         self.training_df['FNAME_SCORE'] = self.training_df.apply(lambda row: fuzz.ratio(row['FIRST_NAME1'], row['FIRST_NAME2'])/100, axis=1)
@@ -339,11 +398,13 @@ def generate():
                 samples = analyzer.getPapersForAuthor(fileLastName[file], fileFirstName[file])
                 random = False
             if 'random' in file:
+                print len(analyzer.df)
                 analyzer.df.drop_duplicates(subset='WOSID', inplace=True, keep='first')
                 analyzer.df.drop_duplicates(subset=['LASTNAME', 'FIRSTNAME'], inplace = True, keep='first')
                 analyzer.df.drop_duplicates(subset=['LASTNAME'], inplace=True, keep='first')
-                analyzer.df.drop_duplicates(subset=['EMAILADDRESS'], inplace=True, keep='first')
-                samples = analyzer.df.sample(300)
+                #analyzer.df.drop_duplicates(subset=['EMAILADDRESS'], inplace=True, keep='first')
+                print len(analyzer.df)
+                samples = analyzer.df.sample(500)
             if samples is not None:
                 training_data_generator = TrainingDataGenerator(samples, random=random)
                 training_data_generator.generate_records()
