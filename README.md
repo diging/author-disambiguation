@@ -30,7 +30,7 @@ git clone https://github.com/diging/author-disambiguation.git
 ### Files 
 
 * `PaperParser.py`
-This class uses [Tethne](http://pythonhosted.org/tethne/) to parse WOS tagged-file data and writes the output to a CSV file. 
+This class uses [Tethne](http://pythonhosted.org/tethne/) to parse WOS tagged-file data and write the output to a CSV file. 
 Then we can use the class `DataAnalysisTool.py` on the output csv to perform data analysis
 
     * There are 2 possible use-cases
@@ -47,10 +47,26 @@ Then we can use the class `DataAnalysisTool.py` on the output csv to perform dat
                    parser.parseDirectory()
         ```
 
+
+* `DataAnalysisTool.py`
+This class has methods and tools to analyse a bunch of (World of Science)WOS papers objects. DataSet is read from a CSV. 
+A CSV file of expected format can be easily created using the class `PaperParser.py` as explained above.
+
+    * An example usage of this analysis tool can be to get all papers based on different variations of the first names and last names.
+        ```python
+                        fileName = '/Users/aosingh/AuthorDisambiguation/Dataset/Albertini_David.csv' #this CSV is generated using the class PaperParser.py
+                        analyzer = DataAnalysisTool(fileName) # Please check the class DataAnalysisTool.py for more details
+                        ALBERTINI_FIRSTNAME = ['DAVID', 'DF', 'DAVID F', 'D F', 'D']
+                        ALBERITNI_LASTNAME = ['ALBERTINI', 'ALBERTIN', 'ALBERTINDF']
+                        papers = analyzer.getPapersForAuthor(ALBERITNI_LASTNAME, ALBERTINI_FIRSTNAME)
+        ```
+     
+      
+
 * `DistanceMetric.py`
 We can define various similarity metrics in this class. 
 
-    * As of now, I have defined a method to calculate cosine similarity. Below is an example of the method to calculate cosine similarity.
+    * As of now, I have defined a method to calculate cosine similarity. 
     
         ```python
         input1 = "CARNEGIE INST WASHINGTON,DEPT EMBRYOL"
@@ -59,6 +75,7 @@ We can define various similarity metrics in this class.
         vector2 = sentence_to_vector(input2) #Counter({'WASHINGTON': 1, 'INST': 1, 'CARNEGIE': 1, 'DEPT': 1})
         cosine_similarity(vector1, vector2)  #0.894427191
         ```
+
 
 * `TrainingDataGenerator.py`
 This class is responsible for generating Training records. By training records, we mean the following 2 things.
@@ -110,6 +127,8 @@ This class is responsible for generating Training records. By training records, 
         ```
     
 
+        
+   
 
 
 
