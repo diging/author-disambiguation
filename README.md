@@ -67,3 +67,12 @@ This module is responsible for generating Training records. By training records,
                     'MATCH']
         ```
 
+* `DistanceMetric.py`
+    * We can define various similarity metrics in this module. As of now, I have defined the method to calculate cosine similarity
+        ```python
+        input1 = "CARNEGIE INST WASHINGTON,DEPT EMBRYOL"
+        input2 = "CARNEGIE INST WASHINGTON,DEPT"
+        vector1 = sentence_to_vector(input1) #Counter({'EMBRYOL': 1, 'WASHINGTON': 1, 'INST': 1, 'CARNEGIE': 1, 'DEPT': 1})
+        vector2 = sentence_to_vector(input2) #Counter({'WASHINGTON': 1, 'INST': 1, 'CARNEGIE': 1, 'DEPT': 1})
+        cosine_similarity(vector1, vector2)  #0.894427191
+        ```
