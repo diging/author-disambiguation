@@ -69,6 +69,7 @@ This module is responsible for generating Training records. By training records,
 
 * `DistanceMetric.py`
     * We can define various similarity metrics in this module. As of now, I have defined the method to calculate cosine similarity
+    
         ```python
         input1 = "CARNEGIE INST WASHINGTON,DEPT EMBRYOL"
         input2 = "CARNEGIE INST WASHINGTON,DEPT"
