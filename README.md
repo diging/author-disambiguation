@@ -36,15 +36,16 @@ Then we can use the class `DataAnalysisTool.py` on the output csv to perform dat
     * There are 2 possible use-cases
         
         ```python
-                   parser = PaperParser('/Users/aosingh/TethneDataAnalysis/MBL History Data/1971/Albertini_David.txt',
-                                       '/Users/aosingh/AuthorDisambiguation/Dataset',)
-                   parser.parseFile()
+        parser = PaperParser('/Users/aosingh/TethneDataAnalysis/MBL History Data/1971/Albertini_David.txt',
+                             '/Users/aosingh/AuthorDisambiguation/Dataset',)
+        parser.parseFile()
         ```
         
         ```python
-                   parser = PaperParser('/Users/aosingh/TethneDataAnalysis/MBL History Data/',
-                               '/Users/aosingh/AuthorDisambiguation/Dataset', output_filename='records.csv')
-                   parser.parseDirectory()
+        parser = PaperParser('/Users/aosingh/TethneDataAnalysis/MBL History Data/',
+                             '/Users/aosingh/AuthorDisambiguation/Dataset', 
+                             output_filename='records.csv')
+        parser.parseDirectory()
         ```
 
 
@@ -55,11 +56,11 @@ A CSV file of expected format can be easily created using the class `PaperParser
     * An example usage of this analysis tool can be to get all papers based on different variations of the first names and last names.
     
         ```python
-                        fileName = '/Users/aosingh/AuthorDisambiguation/Dataset/Albertini_David.csv' #this CSV is generated using the class PaperParser.py
-                        analyzer = DataAnalysisTool(fileName) # Please check the class DataAnalysisTool.py for more details
-                        ALBERTINI_FIRSTNAME = ['DAVID', 'DF', 'DAVID F', 'D F', 'D']
-                        ALBERITNI_LASTNAME = ['ALBERTINI', 'ALBERTIN', 'ALBERTINDF']
-                        papers = analyzer.getPapersForAuthor(ALBERITNI_LASTNAME, ALBERTINI_FIRSTNAME)
+          fileName = '/Users/aosingh/AuthorDisambiguation/Dataset/Albertini_David.csv' #this CSV is generated using the class PaperParser.py
+          analyzer = DataAnalysisTool(fileName) # Please check the class DataAnalysisTool.py for more details
+          ALBERTINI_FIRSTNAME = ['DAVID', 'DF', 'DAVID F', 'D F', 'D']
+          ALBERITNI_LASTNAME = ['ALBERTINI', 'ALBERTIN', 'ALBERTINDF']
+          papers = analyzer.getPapersForAuthor(ALBERITNI_LASTNAME, ALBERTINI_FIRSTNAME)
         ```
      
       
@@ -117,14 +118,14 @@ This class is responsible for generating Training records. By training records, 
     * Example of usage of this class
         
         ```python
-                fileName = '/Users/aosingh/AuthorDisambiguation/Dataset/Albertini_David.csv' #this CSV is generated using the class PaperParser.py
-                analyzer = DataAnalysisTool(fileName) # Please check the class DataAnalysisTool.py for more details
-                ALBERTINI_FIRSTNAME = ['DAVID', 'DF', 'DAVID F', 'D F', 'D']
-                ALBERITNI_LASTNAME = ['ALBERTINI', 'ALBERTIN', 'ALBERTINDF']
-                papers = analyzer.getPapersForAuthor(ALBERITNI_LASTNAME, ALBERTINI_FIRSTNAME)
-                training_data_generator = TrainingDataGenerator(papers, random=False)
-                training_data_generator.generate_records() # generate train.csv.
-                training_data_generator.calculate_scores() # Generate scores.csv
+         fileName = '/Users/aosingh/AuthorDisambiguation/Dataset/Albertini_David.csv' #this CSV is generated using the class PaperParser.py
+         analyzer = DataAnalysisTool(fileName) # Please check the class DataAnalysisTool.py for more details
+         ALBERTINI_FIRSTNAME = ['DAVID', 'DF', 'DAVID F', 'D F', 'D']
+         ALBERITNI_LASTNAME = ['ALBERTINI', 'ALBERTIN', 'ALBERTINDF']
+         papers = analyzer.getPapersForAuthor(ALBERITNI_LASTNAME, ALBERTINI_FIRSTNAME)
+         training_data_generator = TrainingDataGenerator(papers, random=False)
+         training_data_generator.generate_records() # generate train.csv.
+         training_data_generator.calculate_scores() # Generate scores.csv
         ```
     
 
