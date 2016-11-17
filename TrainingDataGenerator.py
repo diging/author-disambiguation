@@ -1,6 +1,7 @@
 from __future__ import division
 
 import pandas as pd
+import numpy as np
 import re
 import os
 
@@ -10,7 +11,8 @@ from fuzzywuzzy import fuzz
 from DataAnalysisTool import DataAnalysisTool
 
 
-input_dataset = '/Users/aosingh/AuthorDisambiguation/Dataset'
+positive_input_dataset = '/Users/aosingh/AuthorDisambiguation/Dataset'
+negative_input_dataset = '/Users/aosingh/AuthorDisambiguation/negative_dataset'
 
 split_institute = lambda institute:institute.split(',')
 join_institute_names = lambda institute : " ".join(x for x in institute)
@@ -56,8 +58,12 @@ HONJO_FIRSTNAME = ['T', 'TASUKU', 'TSUNEO']
 FRANKEL_LASTNAME = ['FRANKEL']
 FRANKEL_FIRSTNAME = ['FR', 'FRED R']
 
+DONOHOO_LASTNAME = ['DONOHOO']
+DONOHOO_FIRSTNAME = ['P']
+
 fileLastName = {}
 fileFirstName = {}
+negativeFileMap = {}
 
 #Declare a dictionary to map each (author specific)csv file corresponding to the possible firstnames and lastnames.
 #These dictionaries will be used when we call the generate() method to generate the training data.
@@ -72,6 +78,7 @@ fileLastName['Calvet_James.csv'] = CALVET_LASTNAME
 fileLastName['Honjo_Tasuka_part1.csv'] = HONJO_LASTNAME
 fileLastName['Honjo_Tasuka_part2.csv'] = HONJO_LASTNAME
 fileLastName['Frankel_Fred.csv'] = FRANKEL_LASTNAME
+fileLastName['Donohoo_Patricia.csv'] = DONOHOO_LASTNAME
 
 fileFirstName['Albertini_David.csv'] = ALBERTINI_FIRSTNAME
 fileFirstName['Arnold_John.csv'] = ARNOLD_FIRSTNAME
@@ -83,7 +90,18 @@ fileFirstName['Calvet_James.csv'] = CALVET_FIRSTNAME
 fileFirstName['Honjo_Tasuka_part1.csv'] = HONJO_FIRSTNAME
 fileFirstName['Honjo_Tasuka_part2.csv'] = HONJO_FIRSTNAME
 fileFirstName['Frankel_Fred.csv'] = FRANKEL_FIRSTNAME
+fileFirstName['Donohoo_Patricia.csv'] = DONOHOO_FIRSTNAME
 
+
+negativeFileMap['negative_albertini.csv'] = 'Albertini_David.csv'
+negativeFileMap['negative_arnold.csv'] = 'Arnold_John.csv'
+negativeFileMap['negative_boyer.csv'] = 'Boyer_Barbara.csv'
+negativeFileMap['negative_calvet.csv'] = 'Calvet_James.csv'
+negativeFileMap['negative_dawid.csv'] = 'Dawid_Igor.csv'
+negativeFileMap['negative_frankel.csv'] = 'Frankel_Fred.csv'
+negativeFileMap['negative_honjot.csv'] = 'Honjo_Tasuka_part1.csv'
+negativeFileMap['negative_donohoo.csv'] = 'Donohoo_Patricia.csv'
+negativeFileMap['negative_trischmann.csv'] = 'Trischmann_Thomas.csv'
 
 class TrainingDataGenerator:
     """
@@ -332,6 +350,7 @@ class TrainingDataGenerator:
             return cosine_similarity(sentence_to_vector(institute1), sentence_to_vector(institute2))
         return 0
 
+
     def calculate_scores(self):
         """
         Calculate the scores for each feature defined below.
@@ -357,7 +376,40 @@ class TrainingDataGenerator:
         records = []
         for index, row in self.papers_df.iterrows():
             for index_child, row_child in self.papers_df.iterrows():
-                if index != index_child:
+                if index != index_child and row['WOSID'] != row_child['WOSID']:
+                    d = {}
+                    d = TrainingDataGenerator.set_feature_value(row, d, 'FIRST_NAME1', 'FIRSTNAME')
+                    d = TrainingDataGenerator.set_feature_value(row, d, 'LAST_NAME1', 'LASTNAME')
+                    d = TrainingDataGenerator.set_feature_value(row, d, 'EMAILADDRESS1', 'EMAILADDRESS')
+                    d = TrainingDataGenerator.set_feature_value(row, d, 'INSTITUTE1', 'INSTITUTE')
+                    d = TrainingDataGenerator.set_feature_value(row, d, 'AUTHOR_KW1', 'AUTHOR_KEYWORDS')
+                    d = TrainingDataGenerator.set_feature_value(row, d, 'COAUTHORS1', 'CO-AUTHORS')
+
+                    d = TrainingDataGenerator.set_feature_value(row_child, d, 'FIRST_NAME2', 'FIRSTNAME')
+                    d = TrainingDataGenerator.set_feature_value(row_child, d, 'LAST_NAME2', 'LASTNAME')
+                    d = TrainingDataGenerator.set_feature_value(row_child, d, 'EMAILADDRESS2', 'EMAILADDRESS')
+                    d = TrainingDataGenerator.set_feature_value(row_child, d, 'INSTITUTE2', 'INSTITUTE')
+                    d = TrainingDataGenerator.set_feature_value(row_child, d, 'AUTHOR_KW2', 'AUTHOR_KEYWORDS')
+                    d = TrainingDataGenerator.set_feature_value(row_child, d, 'COAUTHORS2', 'CO-AUTHORS')
+                    records.append(d)
+        self.training_df = pd.DataFrame(records)
+        if not self.random:
+            self.training_df['MATCH'] = [1] * len(self.training_df)
+        else:
+            self.training_df['MATCH'] = [0] * len(self.training_df)
+
+    def generate_records_for_negatitve_cases(self, positiveFileName):
+
+        analyzer = DataAnalysisTool(os.path.join(positive_input_dataset, positiveFileName))
+        samples = analyzer.getPapersForAuthor(fileLastName[positiveFileName], fileFirstName[positiveFileName])
+        print len(samples)
+        criterion = lambda row : row['WOSID'] not in samples['WOSID']
+        #filetered_rows = self.papers_df[self.papers_df.apply(criterion, axis=1)]
+        print len(self.papers_df[self.papers_df.apply(criterion, axis=1)])
+        records = []
+        for index, row in samples.iterrows():
+            for index_child, row_child in self.papers_df[self.papers_df.apply(criterion, axis=1)].iterrows():
+                if row_child['WOSID'] not in samples['WOSID'] and row_child['EMAILADDRESS'] != row['EMAILADDRESS']:
                     d = {}
                     d = TrainingDataGenerator.set_feature_value(row, d, 'FIRST_NAME1', 'FIRSTNAME')
                     d = TrainingDataGenerator.set_feature_value(row, d, 'LAST_NAME1', 'LASTNAME')
@@ -388,33 +440,35 @@ class TrainingDataGenerator:
 def generate():
     dataFrame = None
     scoresDF = None
-    for root, subfolders, files in os.walk(input_dataset):
+    for root, subfolders, files in os.walk(positive_input_dataset):
         for file in files:
             fileName = os.path.join(root, file)
+            print file
             samples = None
             random = True
             analyzer = DataAnalysisTool(fileName)
             if file in fileLastName:
                 samples = analyzer.getPapersForAuthor(fileLastName[file], fileFirstName[file])
                 random = False
-            if 'random' in file:
-                print len(analyzer.df)
+            if 'negative' in file:
                 analyzer.df.drop_duplicates(subset='WOSID', inplace=True, keep='first')
-                analyzer.df.drop_duplicates(subset=['LASTNAME', 'FIRSTNAME'], inplace = True, keep='first')
-                analyzer.df.drop_duplicates(subset=['LASTNAME'], inplace=True, keep='first')
-                #analyzer.df.drop_duplicates(subset=['EMAILADDRESS'], inplace=True, keep='first')
-                print len(analyzer.df)
-                samples = analyzer.df.sample(500)
+                number_of_samples = 300
+                if len(analyzer.df) < 300:
+                    number_of_samples = len(analyzer.df)
+                training_data_generator = TrainingDataGenerator(analyzer.df.sample(number_of_samples).replace(np.nan, '', regex=True), random=random)
+                training_data_generator.generate_records_for_negatitve_cases(negativeFileMap[file])
+                training_data_generator.calculate_scores()
+                samples = None
             if samples is not None:
                 training_data_generator = TrainingDataGenerator(samples, random=random)
                 training_data_generator.generate_records()
                 training_data_generator.calculate_scores()
-                if dataFrame is None:
-                    dataFrame = training_data_generator.training_df
-                    scoresDF = training_data_generator.training_scores_df
-                else:
-                    dataFrame = dataFrame.append(training_data_generator.training_df)
-                    scoresDF = scoresDF.append(training_data_generator.training_scores_df)
+            if dataFrame is None:
+                dataFrame = training_data_generator.training_df
+                scoresDF = training_data_generator.training_scores_df
+            else:
+                dataFrame = dataFrame.append(training_data_generator.training_df)
+                scoresDF = scoresDF.append(training_data_generator.training_scores_df)
     if dataFrame is not None:
         dataFrame.to_csv('/Users/aosingh/AuthorDisambiguation/Training_data/train.csv', index=False)
         scoresDF.to_csv('/Users/aosingh/AuthorDisambiguation/Training_data/scores.csv', columns=features, index=False)

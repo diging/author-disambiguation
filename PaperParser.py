@@ -142,5 +142,5 @@ class PaperParser:
                     paperWriter.writerow(row)
 
 
-parser = PaperParser('/Users/aosingh/AuthorDisambiguation/RandomDataSet', '/Users/aosingh/AuthorDisambiguation/Dataset', 'random.csv')
-parser.parseDirectory()
+parser = PaperParser('/Users/aosingh/AuthorDisambiguation/MBL History Data/1972/Donohoo_Patricia.txt', '/Users/aosingh/AuthorDisambiguation/Dataset')
+parser.parseFile()
