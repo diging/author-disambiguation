@@ -20,7 +20,7 @@ features = [
     'COAUTHOR_SCORE'
 ]
 
-print "Using K-FOLD CROSS VALIDATION..."
+print ("Using K-FOLD CROSS VALIDATION...")
 df = pd.read_csv(data_set)
 clf = svm.SVC(kernel='poly', degree=2, verbose=True)
 scores = cross_val_score(clf, df[features], df['MATCH'], cv=10, scoring='f1_macro')
@@ -29,7 +29,7 @@ pprint("K-FOLD Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
 
 
-print "Using Shuffle Split..."
+print ("Using Shuffle Split...")
 cv = ShuffleSplit(n_splits=5, test_size=0.4, random_state=0)
 scores = cross_val_score(clf, df[features], df['MATCH'], cv=cv)
 pprint("ShuffleSplit Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))

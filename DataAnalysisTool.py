@@ -122,7 +122,7 @@ class DataAnalysisTool:
                         score_matrix[count][count_child] = score
                     count_child += 1
             count += 1
-        print score_matrix
+        print (score_matrix)
 
         list_upper_triangular = score_matrix[np.triu_indices(len(papers_dataframe),1)]
         list_upper_triangular = list_upper_triangular[np.nonzero(list_upper_triangular)]
@@ -154,7 +154,7 @@ class DataAnalysisTool:
                 score_matrix[count][count_child] = score
                 count_child += 1
             count += 1
-        print score_matrix
+        print (score_matrix)
         list_upper_triangular = score_matrix[np.triu_indices(len(listOfFeatures),1)]
         list_upper_triangular = list_upper_triangular[np.nonzero(list_upper_triangular)]
         #return list_upper_triangular

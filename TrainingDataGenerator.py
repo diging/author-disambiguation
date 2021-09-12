@@ -402,10 +402,10 @@ class TrainingDataGenerator:
 
         analyzer = DataAnalysisTool(os.path.join(positive_input_dataset, positiveFileName))
         samples = analyzer.getPapersForAuthor(fileLastName[positiveFileName], fileFirstName[positiveFileName])
-        print len(samples)
+        print (len(samples))
         criterion = lambda row : row['WOSID'] not in samples['WOSID']
         #filetered_rows = self.papers_df[self.papers_df.apply(criterion, axis=1)]
-        print len(self.papers_df[self.papers_df.apply(criterion, axis=1)])
+        print (len(self.papers_df[self.papers_df.apply(criterion, axis=1)]))
         records = []
         for index, row in samples.iterrows():
             for index_child, row_child in self.papers_df[self.papers_df.apply(criterion, axis=1)].iterrows():
@@ -443,7 +443,7 @@ def generate():
     for root, subfolders, files in os.walk(positive_input_dataset):
         for file in files:
             fileName = os.path.join(root, file)
-            print file
+            print (file)
             samples = None
             random = True
             analyzer = DataAnalysisTool(fileName)
@@ -470,8 +470,8 @@ def generate():
                 dataFrame = dataFrame.append(training_data_generator.training_df)
                 scoresDF = scoresDF.append(training_data_generator.training_scores_df)
     if dataFrame is not None:
-        dataFrame.to_csv('/Users/aosingh/AuthorDisambiguation/Training_data/train.csv', index=False)
-        scoresDF.to_csv('/Users/aosingh/AuthorDisambiguation/Training_data/scores.csv', columns=features, index=False)
+        dataFrame.to_csv('/content/Users/aosingh/AuthorDisambiguation/Training_data/train.csv', index=False)
+        scoresDF.to_csv('/content/AuthorDisambiguation/Training_data/scores.csv', columns=features, index=False)
 
 
 generate()

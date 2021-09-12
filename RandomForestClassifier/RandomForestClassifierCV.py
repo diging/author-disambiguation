@@ -11,8 +11,8 @@ import os
 from pprint import pprint
 
 data_set = '../Training_data/scores.csv'
-output_filename = "random_forest_CV.txt"
-output_directory = "/Users/aosingh/AuthorDisambiguation/Serialized_models"
+output_filename = "random_forest_CV.pkl"
+output_directory = "/content/AuthorDisambiguation/Serialized_models"
 
 output_file = os.path.join(output_directory, output_filename)
 
@@ -30,7 +30,7 @@ features = [
 
 df = pd.read_csv(data_set)
 samplesize = math.floor((1/2)*len(df))
-print samplesize
+print (samplesize)
 sample_df = df.sample(samplesize)
 clf = RandomForestClassifier(verbose=1)
 
@@ -39,7 +39,7 @@ scores = cross_val_score(clf, df[features], df['MATCH'], cv=10, scoring='f1_macr
 pprint(scores)
 pprint("K-FOLD Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
-with open(output_file, 'r') as output:
+with open("/content/author-disambiguation/Serialized_models/random_forest_CV.pkl", 'r') as output:
     clf2 = pickle.loads(output.read())
 
 scores = cross_val_score(clf2, df[features], df['MATCH'], cv=10, scoring='f1_macro')
