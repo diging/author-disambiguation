@@ -11,8 +11,8 @@ from fuzzywuzzy import fuzz
 from DataAnalysisTool import DataAnalysisTool
 
 
-positive_input_dataset = '/Users/aosingh/AuthorDisambiguation/Dataset'
-negative_input_dataset = '/Users/aosingh/AuthorDisambiguation/negative_dataset'
+positive_input_dataset = '/content/AuthorDisambiguation/Dataset'
+negative_input_dataset = '/content/AuthorDisambiguation/negative_dataset'
 
 split_institute = lambda institute:institute.split(',')
 join_institute_names = lambda institute : " ".join(x for x in institute)
@@ -139,7 +139,8 @@ class TrainingDataGenerator:
 
         ``Example``
 
-        >>> fileName = '/Users/aosingh/AuthorDisambiguation/Dataset/Albertini_David.csv'
+        >>> fileName = '
+        s/aosingh/AuthorDisambiguation/Dataset/Albertini_David.csv'
         >>> analyzer = DataAnalysisTool(fileName) # Please check the class DataAnalysisTool for more details
         >>> ALBERTINI_FIRSTNAME = ['DAVID', 'DF', 'DAVID F', 'D F', 'D']
         >>> ALBERITNI_LASTNAME = ['ALBERTINI', 'ALBERTIN', 'ALBERTINDF']
@@ -470,7 +471,7 @@ def generate():
                 dataFrame = dataFrame.append(training_data_generator.training_df)
                 scoresDF = scoresDF.append(training_data_generator.training_scores_df)
     if dataFrame is not None:
-        dataFrame.to_csv('/content/Users/aosingh/AuthorDisambiguation/Training_data/train.csv', index=False)
+        dataFrame.to_csv('/content/AuthorDisambiguation/Training_data/train.csv', index=False)
         scoresDF.to_csv('/content/AuthorDisambiguation/Training_data/scores.csv', columns=features, index=False)
 
 
